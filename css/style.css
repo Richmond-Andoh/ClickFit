@@ -64,6 +64,13 @@
   --radius-full: 9999px;
 }
 
+/* just a quick reset helper, used in some spots */
+.clearfix::after {
+  content: '';
+  display: table;
+  clear: both;
+}
+
 *,
 *::before,
 *::after {
@@ -415,8 +422,9 @@ ul {
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to right, var(--clr-surface) 0%, rgba(18,19,23,0.8) 50%, transparent 100%),
-              linear-gradient(to top, var(--clr-surface) 0%, transparent 50%);
+  background:
+    linear-gradient(to right, var(--clr-surface) 0%, rgba(18, 19, 23, .8) 50%, transparent 100%),
+    linear-gradient(to top, var(--clr-surface) 0%, transparent 50%);
   z-index: 1;
 }
 
@@ -471,7 +479,7 @@ ul {
   font-size: 10px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  opacity: 0.5;
+  opacity: .5;
 }
 
 .scroll-line {
@@ -606,7 +614,7 @@ ul {
 .program-card .card-body .body-md {
   color: var(--clr-on-surface-variant);
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity .3s ease;
 }
 
 .program-card:hover .card-body .body-md {
@@ -894,6 +902,8 @@ ul {
   color: var(--clr-on-primary-container);
 }
 
+/* TODO: maybe add a newsletter signup here later */
+
 /* ========== FOOTER ========== */
 
 .site-footer {
@@ -982,7 +992,7 @@ ul {
   opacity: 0.6;
 }
 
-/* ========== ABOUT PAGE ========== */
+/* about page styles */
 
 .about-hero {
   position: relative;
@@ -1324,7 +1334,7 @@ ul {
   right: 32px;
   background: var(--clr-surface-mid);
   padding: 32px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
   border-left: 4px solid var(--clr-primary-container);
 }
 
@@ -1355,7 +1365,7 @@ ul {
   color: var(--clr-on-surface-variant);
 }
 
-/* ========== PROGRAMS PAGE ========== */
+/* programs page */
 
 .programs-hero {
   position: relative;
@@ -1484,13 +1494,13 @@ ul {
 .discipline-card .disc-img .disc-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.4);
-  transition: background 0.3s;
+  background: rgba(0, 0, 0, .4);
+  transition: background .3s;
   z-index: 1;
 }
 
 .discipline-card:hover .disc-img .disc-overlay {
-  background: rgba(0,0,0,0.1);
+  background: rgba(0, 0, 0, .1);
 }
 
 .discipline-card .disc-body {
@@ -1746,7 +1756,7 @@ ul {
   color: #fff;
 }
 
-/* ========== PRICING PAGE ========== */
+/* pricing page stuff */
 
 .pricing-hero {
   padding-top: 128px;
@@ -2134,7 +2144,7 @@ ul {
   }
 }
 
-/* ========== REVEAL ANIMATION ========== */
+/* reveal - scroll anim */
 
 .reveal {
   opacity: 0;
@@ -2175,7 +2185,7 @@ ul {
   .nav-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.8);
+    background: rgba(0, 0, 0, 0.8);
     z-index: 99;
     opacity: 0;
     pointer-events: none;

@@ -5,25 +5,25 @@ const path = require('path');
 const https = require('https');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+var PORT = process.env.PORT || 5000;
 
-const uploadDir = path.join(__dirname, 'upload_images');
+var uploadDir = path.join(__dirname, 'upload_images');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-const storage = multer.diskStorage({
+var storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname).toLowerCase();
+    var ext = path.extname(file.originalname).toLowerCase();
     cb(null, Date.now() + '-' + Math.random().toString(36).slice(2, 8) + ext);
   }
 });
 
-const fileFilter = function (req, file, cb) {
-  const allowed = /\.(jpg|jpeg|png|gif|webp|bmp)$/i;
+var fileFilter = function (req, file, cb) {
+  var allowed = /\.(jpg|jpeg|png|gif|webp|bmp)$/i;
   if (allowed.test(path.extname(file.originalname))) {
     cb(null, true);
   } else {
@@ -31,47 +31,45 @@ const fileFilter = function (req, file, cb) {
   }
 };
 
-const upload = multer({
+var upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 }
 });
 
 app.use(express.json());
-
 app.use(express.static(__dirname));
 
 app.get('/api/objects', function (req, res) {
-  const proxyReq = https.request(
-    {
-      hostname: 'api.restful-api.dev',
-      path: '/objects',
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json'
-      },
-      timeout: 5000
+  var opts = {
+    hostname: 'api.restful-api.dev',
+    path: '/objects',
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json'
     },
-    function (proxyRes) {
-      let data = '';
-      proxyRes.setEncoding('utf-8');
-      proxyRes.on('data', function (chunk) {
-        data += chunk;
-      });
-      proxyRes.on('end', function () {
-        try {
-          const parsed = JSON.parse(data);
-          res.json(parsed);
-        } catch (e) {
-          res.status(500).json({ message: 'Failed to parse response from upstream' });
-        }
-      });
-      proxyRes.on('error', function () {
-        res.status(500).json({ message: 'Error reading upstream response' });
-      });
-    }
-  );
+    timeout: 5000
+  };
+
+  var proxyReq = https.request(opts, function (proxyRes) {
+    var data = '';
+    proxyRes.setEncoding('utf-8');
+    proxyRes.on('data', function (chunk) {
+      data += chunk;
+    });
+    proxyRes.on('end', function () {
+      try {
+        var parsed = JSON.parse(data);
+        res.json(parsed);
+      } catch (e) {
+        res.status(500).json({ message: 'Failed to parse response from upstream' });
+      }
+    });
+    proxyRes.on('error', function () {
+      res.status(500).json({ message: 'Error reading upstream response' });
+    });
+  });
 
   proxyReq.on('timeout', function () {
     proxyReq.destroy();
@@ -116,14 +114,16 @@ app.get('/api/uploads', function (req, res) {
     if (err) {
       return res.status(500).json({ success: false, error: 'Could not list uploads' });
     }
-    const images = files.filter(function (f) {
-      return /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(f);
-    }).map(function (f) {
-      return {
-        filename: f,
-        url: '/upload_images/' + f
-      };
-    });
+    var images = [];
+    for (var i = 0; i < files.length; i++) {
+      var f = files[i];
+      if (/\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(f)) {
+        images.push({
+          filename: f,
+          url: '/upload_images/' + f
+        });
+      }
+    }
     res.json({ success: true, images: images });
   });
 });

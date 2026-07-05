@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function () {
+$(document).ready(function () {
   initReveal();
   initMobileNav();
   initTestimonialSlider();
@@ -11,39 +11,44 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function fetchApiData() {
-  const url = 'https://api.restful-api.dev/objects';
+  let url = 'https://api.restful-api.dev/objects';
 
   $.ajax({
     url: url,
     method: 'GET',
     dataType: 'json',
     success: function (data) {
-      const container = $('#api-content');
-      const rawContainer = $('#api-raw');
+      var container = $('#api-content');
+      var rawContainer = $('#api-raw');
 
       rawContainer.text(JSON.stringify(data, null, 2)).show();
 
       if (Array.isArray(data)) {
-        data.forEach(function (item) {
-          const card = $('<div>').addClass('col-md-4 col-sm-6');
-          const cardBody = $('<div>').addClass('card h-100 bg-dark text-light border-secondary');
-          const cardInner = $('<div>').addClass('card-body');
-          cardInner.append($('<h5>').addClass('card-title').text(item.name || 'Unnamed'));
+        for (var i = 0; i < data.length; i++) {
+          var item = data[i];
+
+          var col = $('<div>').addClass('col-md-4 col-sm-6');
+          var card = $('<div>').addClass('card h-100 bg-dark text-light border-secondary');
+          var body = $('<div>').addClass('card-body');
+
+          body.append($('<h5>').addClass('card-title').text(item.name || 'Unnamed'));
+
           if (item.data) {
-            const list = $('<ul>').addClass('list-unstyled small mb-0');
-            Object.entries(item.data).forEach(function (_a) {
-              var key = _a[0], val = _a[1];
+            var list = $('<ul>').addClass('list-unstyled small mb-0');
+            for (var key in item.data) {
+              var val = item.data[key];
               list.append($('<li>').html('<span class="text-warning">' + key + ':</span> ' + val));
-            });
-            cardInner.append(list);
+            }
+            body.append(list);
           }
-          cardBody.append(cardInner);
-          card.append(cardBody);
-          container.append(card);
-        });
+
+          card.append(body);
+          col.append(card);
+          container.append(col);
+        }
       }
     },
-    error: function (jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus) {
       $('#api-content').html(
         '<div class="alert alert-danger">Failed to load API data: ' + textStatus + '</div>'
       );
@@ -52,9 +57,9 @@ function fetchApiData() {
 }
 
 function initReveal() {
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
+  var observer = new IntersectionObserver(
+    function (entries) {
+      entries.forEach(function (entry) {
         if (entry.isIntersecting) {
           entry.target.classList.add('active');
         }
@@ -63,13 +68,15 @@ function initReveal() {
     { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
   );
 
-  document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+  document.querySelectorAll('.reveal').forEach(function (el) {
+    observer.observe(el);
+  });
 }
 
 function initMobileNav() {
-  const toggle = document.querySelector('.mobile-toggle');
-  const navLinks = document.querySelector('.nav-links');
-  const overlay = document.querySelector('.nav-overlay');
+  var toggle = document.querySelector('.mobile-toggle');
+  var navLinks = document.querySelector('.nav-links');
+  var overlay = document.querySelector('.nav-overlay');
 
   if (!toggle || !navLinks) return;
 
@@ -97,29 +104,30 @@ function initMobileNav() {
     overlay.addEventListener('click', closeNav);
   }
 
-  navLinks.querySelectorAll('a').forEach((link) => {
-    link.addEventListener('click', closeNav);
-  });
+  var links = navLinks.querySelectorAll('a');
+  for (var i = 0; i < links.length; i++) {
+    links[i].addEventListener('click', closeNav);
+  }
 }
 
 function initTestimonialSlider() {
-  const slider = document.getElementById('testimonial-slider');
+  var slider = document.getElementById('testimonial-slider');
   if (!slider) return;
 
   window.scrollTestimonial = function (direction) {
-    const scrollAmount = slider.clientWidth;
+    var w = slider.clientWidth;
     slider.scrollBy({
-      left: direction * scrollAmount,
+      left: direction * w,
       behavior: 'smooth',
     });
   };
 }
 
 function initScheduleTabs() {
-  const tabs = document.querySelectorAll('.schedule-tab');
+  var tabs = document.querySelectorAll('.schedule-tab');
   if (!tabs.length) return;
 
-  const scheduleData = {
+  var scheduleData = {
     mon: [
       { time: '06:00 AM', title: 'HIIT Core', coach: 'Marcus', level: 'Elite', color: 'lime' },
       { time: '10:00 AM', title: 'Power Iron', coach: 'Sarah', level: 'Intermediate', color: 'orange' },
@@ -151,46 +159,45 @@ function initScheduleTabs() {
     ],
   };
 
-  tabs.forEach((tab) => {
-    tab.addEventListener('click', function () {
-      const day = this.getAttribute('data-day');
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].addEventListener('click', function () {
+      var day = this.getAttribute('data-day');
 
-      tabs.forEach((t) => {
-        t.classList.remove('active');
-      });
+      for (var j = 0; j < tabs.length; j++) {
+        tabs[j].classList.remove('active');
+      }
       this.classList.add('active');
 
-      const list = document.querySelector('.schedule-list');
+      var list = document.querySelector('.schedule-list');
       if (!list) return;
 
-      const entries = scheduleData[day] || scheduleData['mon'];
-      let html = '';
-      entries.forEach((item) => {
-        const borderClass = 'border-left-' + item.color;
-        html += `
-          <div class="schedule-item ${borderClass} reveal">
-            <div class="schedule-item-left">
-              <span class="schedule-time">${item.time}</span>
-              <div>
-                <h4 class="heading-md">${item.title}</h4>
-                <p class="schedule-coach">Coach ${item.coach} &bull; ${item.level}</p>
-              </div>
-            </div>
-            <button class="schedule-book ${item.color}">Book Now</button>
-          </div>`;
-      });
+      var entries = scheduleData[day] || scheduleData['mon'];
+      var html = '';
+      for (var k = 0; k < entries.length; k++) {
+        var item = entries[k];
+        var borderClass = 'border-left-' + item.color;
+        html += '<div class="schedule-item ' + borderClass + ' reveal">' +
+          '<div class="schedule-item-left">' +
+          '<span class="schedule-time">' + item.time + '</span>' +
+          '<div>' +
+          '<h4 class="heading-md">' + item.title + '</h4>' +
+          '<p class="schedule-coach">Coach ' + item.coach + ' &bull; ' + item.level + '</p>' +
+          '</div>' +
+          '</div>' +
+          '<button class="schedule-book ' + item.color + '">Book Now</button>' +
+          '</div>';
+      }
       list.innerHTML = html;
       initReveal();
     });
-  });
+  }
 }
 
 function initDropZone() {
   var dropZone = $('#drop-zone');
   var fileInput = $('#file-input');
-  var statusEl = $('#upload-status');
 
-  if (!dropZone.length) return;
+  if (dropZone.length === 0) return;
 
   dropZone.on('click', function () {
     fileInput.click();
@@ -198,7 +205,7 @@ function initDropZone() {
 
   fileInput.on('change', function () {
     var files = this.files;
-    if (files.length) {
+    if (files.length > 0) {
       uploadFiles(files);
     }
     this.value = '';
@@ -221,7 +228,7 @@ function initDropZone() {
     e.stopPropagation();
     $(this).removeClass('drag-over');
     var files = e.originalEvent.dataTransfer.files;
-    if (files.length) {
+    if (files.length > 0) {
       uploadFiles(files);
     }
   });
@@ -231,16 +238,18 @@ function uploadFiles(files) {
   var statusEl = $('#upload-status');
   var thumbnails = $('#thumbnails');
 
-  $.each(files, function (i, file) {
+  for (var i = 0; i < files.length; i++) {
+    var file = files[i];
+
     if (!file.type.match(/image.*/)) {
       statusEl.append(
         '<div class="alert alert-warning py-1 px-2 mb-1 small">Skipped non-image: ' + file.name + '</div>'
       );
-      return;
+      continue;
     }
 
-    var formData = new FormData();
-    formData.append('image', file);
+    var fd = new FormData();
+    fd.append('image', file);
 
     var row = $('<div>').addClass('d-flex align-items-center mb-1 small text-light');
     row.append($('<span>').addClass('me-2').text(file.name));
@@ -248,35 +257,37 @@ function uploadFiles(files) {
     row.append(spinner);
     statusEl.append(row);
 
-    $.ajax({
-      url: '/api/upload',
-      method: 'POST',
-      data: formData,
-      processData: false,
-      contentType: false,
-      success: function (resp) {
-        spinner.remove();
-        if (resp.success) {
-          row.append($('<span>').addClass('text-success').text('✓ Uploaded'));
-          var thumb = $('<div>').addClass('thumb');
-          thumb.append(
-            $('<img>').attr('src', resp.url).attr('alt', resp.originalName)
-          );
-          thumbnails.append(thumb);
-        } else {
-          row.append($('<span>').addClass('text-danger').text('✗ ' + resp.error));
-        }
-      },
-      error: function (jqXHR) {
-        spinner.remove();
-        var msg = 'Upload failed';
-        try {
-          var r = JSON.parse(jqXHR.responseText);
-          if (r.error) msg = r.error;
-        } catch (e) {}
-        row.append($('<span>').addClass('text-danger').text('✗ ' + msg));
+    doUpload(fd, row, spinner, thumbnails);
+  }
+}
+
+function doUpload(formData, row, spinner, thumbnails) {
+  $.ajax({
+    url: '/api/upload',
+    method: 'POST',
+    data: formData,
+    processData: false,
+    contentType: false,
+    success: function (resp) {
+      spinner.remove();
+      if (resp.success) {
+        row.append($('<span>').addClass('text-success').text('OK'));
+        var t = $('<div>').addClass('thumb');
+        t.append($('<img>').attr('src', resp.url).attr('alt', resp.originalName));
+        thumbnails.append(t);
+      } else {
+        row.append($('<span>').addClass('text-danger').text('Failed: ' + resp.error));
       }
-    });
+    },
+    error: function (xhr) {
+      spinner.remove();
+      var msg = 'Upload failed';
+      try {
+        var r = JSON.parse(xhr.responseText);
+        if (r.error) msg = r.error;
+      } catch (e) { /* ignore parse error */ }
+      row.append($('<span>').addClass('text-danger').text(msg));
+    }
   });
 }
 
@@ -285,11 +296,12 @@ function loadUploadedImages() {
     if (resp.success && resp.images && resp.images.length) {
       var thumbnails = $('#thumbnails');
       thumbnails.empty();
-      $.each(resp.images, function (i, img) {
-        var thumb = $('<div>').addClass('thumb');
-        thumb.append($('<img>').attr('src', img.url).attr('alt', img.filename));
-        thumbnails.append(thumb);
-      });
+      for (var i = 0; i < resp.images.length; i++) {
+        var img = resp.images[i];
+        var t = $('<div>').addClass('thumb');
+        t.append($('<img>').attr('src', img.url).attr('alt', img.filename));
+        thumbnails.append(t);
+      }
     }
   });
 }
@@ -300,9 +312,9 @@ function initFormSubmit() {
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
-    const btn = this.querySelector('.form-btn');
+    var btn = this.querySelector('.form-btn');
     if (!btn) return;
-    const original = btn.textContent;
+    var original = btn.textContent;
     btn.textContent = 'Transmitting...';
     btn.style.background = 'var(--clr-secondary-fixed)';
     btn.style.color = 'var(--clr-on-secondary-fixed)';
@@ -320,7 +332,7 @@ function initFormSubmit() {
 }
 
 function initNavScroll() {
-  const header = document.querySelector('.site-header');
+  var header = document.querySelector('.site-header');
   if (!header) return;
 
   window.addEventListener('scroll', function () {
